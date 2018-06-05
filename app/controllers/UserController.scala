@@ -7,20 +7,29 @@ import play.api.mvc._
 
 
 class UserController @Inject()(cc: ControllerComponents, sf: ServiceFactory) extends AbstractController(cc){
-  def create = Action(parse.json[User]) {
+  def create: Action[User] = Action(parse.json[User]) {
     implicit request => {
-      sf.getUserService addUser request.body
+      val service = sf.getUserService
+      try {
+        service addUser request.body
+      } finally {
+        service.close()
+      }
       Ok("User created")
     }
   }
 
-  def login = Action(parse.json[User]) {
+  def login: Action[User] = Action(parse.json[User]) {
     implicit request => {
-      val token : String = sf.getUserService login request.body
-      if (token != null)
+      val service = sf.getUserService
+      try {
+        val token : String = service login request.body
+        if (token != null)
         Ok(token)
-      else
+        else
         Unauthorized
-    }
+      }finally {
+        service.close()
+      }
   }
 }

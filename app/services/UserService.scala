@@ -1,14 +1,17 @@
 package services
 
+import java.io.Closeable
+
 import entities.User
 import javax.inject.Singleton
 import javax.persistence.{EntityManager, EntityTransaction, NoResultException}
 import org.mindrot.jbcrypt.BCrypt
 import pdi.jwt.JwtSession
 
-trait UserService {
+trait UserService extends Closeable{
   def addUser(user: User)
   def login(user: User) : String
+  def close(): Unit
 }
 
 @Singleton
@@ -39,6 +42,10 @@ class EntityUserService(manager: EntityManager) extends  UserService {
     }
   }
 
+  def close(): Unit = {
+    manager.close()
+  }
+
   private def checkUsers(u: User, u2: User) = u.username.equals(u2.username) && BCrypt.checkpw(u.password, u2.password)
 
   private def findUserByName(u: User) = manager
@@ -46,4 +53,6 @@ class EntityUserService(manager: EntityManager) extends  UserService {
       .setParameter("username", u.username)
       .getSingleResult
       .asInstanceOf[User]
+
+
 }

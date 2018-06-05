@@ -11,7 +11,9 @@ trait ServiceFactory {
 @Singleton
 class EntityServiceFactory extends ServiceFactory {
 
-  private val EntityManager = Persistence.createEntityManagerFactory("manager1").createEntityManager()
+  private val defaultManager: String = "manager1"
 
-  def getUserService: UserService = new  EntityUserService(EntityManager)
+  def getUserService: UserService = new EntityUserService(
+    Persistence.createEntityManagerFactory(defaultManager).createEntityManager()
+  )
 }
