@@ -1,6 +1,7 @@
 import com.google.inject.AbstractModule
 import java.time.Clock
 
+import factories.{EntityServiceFactory, ServiceFactory}
 import services.{ApplicationTimer, AtomicCounter, Counter}
 
 /**
@@ -23,6 +24,8 @@ class Module extends AbstractModule {
     bind(classOf[ApplicationTimer]).asEagerSingleton()
     // Set AtomicCounter as the implementation for Counter.
     bind(classOf[Counter]).to(classOf[AtomicCounter])
+
+    bind(classOf[ServiceFactory]).to(classOf[EntityServiceFactory])
   }
 
 }
