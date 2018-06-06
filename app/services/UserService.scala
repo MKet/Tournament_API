@@ -8,17 +8,19 @@ import javax.persistence.{EntityManager, EntityTransaction, NoResultException}
 import org.mindrot.jbcrypt.BCrypt
 import pdi.jwt.JwtSession
 
-trait UserService extends Closeable{
+trait UserService extends Closeable {
   def addUser(user: User)
-  def login(user: User) : String
+
+  def login(user: User): String
+
   def close(): Unit
 }
 
 @Singleton
-class EntityUserService(manager: EntityManager) extends  UserService {
+class EntityUserService(manager: EntityManager) extends UserService {
 
-  override def addUser(user: User) = {
-    val transaction : EntityTransaction = manager.getTransaction
+  override def addUser(user: User): Unit = {
+    val transaction: EntityTransaction = manager.getTransaction
 
     val HashedUser = new User(user.username, BCrypt.hashpw(user.password, BCrypt.gensalt()))
 
@@ -42,17 +44,14 @@ class EntityUserService(manager: EntityManager) extends  UserService {
     }
   }
 
-  def close(): Unit = {
-    manager.close()
-  }
-
   private def checkUsers(u: User, u2: User) = u.username.equals(u2.username) && BCrypt.checkpw(u.password, u2.password)
 
   private def findUserByName(u: User) = manager
-      .createNamedQuery("User.FindUserByName")
-      .setParameter("username", u.username)
-      .getSingleResult
-      .asInstanceOf[User]
+    .createNamedQuery("User.FindUserByName")
+    .setParameter("username", u.username)
+    .getSingleResult
+    .asInstanceOf[User]
 
+  def close(): Unit = manager.close()
 
 }

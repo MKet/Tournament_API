@@ -6,7 +6,7 @@ import javax.inject._
 import play.api.mvc._
 
 
-class UserController @Inject()(cc: ControllerComponents, sf: ServiceFactory) extends AbstractController(cc){
+class UserController @Inject()(cc: ControllerComponents, sf: ServiceFactory) extends AbstractController(cc) {
   def create: Action[User] = Action(parse.json[User]) {
     implicit request => {
       val service = sf.getUserService
@@ -23,13 +23,14 @@ class UserController @Inject()(cc: ControllerComponents, sf: ServiceFactory) ext
     implicit request => {
       val service = sf.getUserService
       try {
-        val token : String = service login request.body
+        val token: String = service login request.body
         if (token != null)
-        Ok(token)
+          Ok(token)
         else
-        Unauthorized
-      }finally {
+          Unauthorized
+      } finally {
         service.close()
       }
+    }
   }
 }
