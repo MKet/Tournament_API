@@ -7,27 +7,30 @@ import play.api.libs.json._
 
 @Entity
 class Team {
+  @Id
+  @GeneratedValue
+  var Id: Int = 0
+  @ManyToMany
+  var players: util.List[Player] = _
+  @OneToMany
+  var matches: util.List[Match] = _
+
   def this(Id: Int) = {
     this()
     this.Id = Id
   }
-  @Id
-  @GeneratedValue
-  var Id : Int = 0
-
-  @ManyToMany
-  var players: List[Player] = util.ArrayList[Player]
-
 }
 
 object Team {
+
   implicit object SearchFormat extends Format[Team] {
     def reads(json: JsValue): JsResult[Team] = JsSuccess(new Team(
-      (json \ "Id").as[Integer]
+      (json \ "Id").as[Int]
     ))
 
     def writes(s: Team): JsValue = JsObject(Seq(
       "Id" -> JsNumber(s.Id)
     ))
   }
+
 }

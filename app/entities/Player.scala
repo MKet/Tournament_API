@@ -3,34 +3,33 @@ package entities
 import java.util
 
 import javax.persistence._
-import play.api.libs.json.{Format, JsArray, JsObject, JsResult, JsString, JsSuccess, JsValue, Json}
+import play.api.libs.json._
 
 @Entity
 class Player {
-  def this(name: String,
-            battleTag: List[String]) = {
+  @Id
+  var name: String = ""
+  @ElementCollection(targetClass=classOf[String])
+  var battleTag: util.List[String] = _
+  @ManyToMany(mappedBy = "players")
+  var teams: util.List[Team] = _
+
+  def this(name: String) = {
     this()
     this.name = name
-    this.battleTag = battleTag
   }
-  @Id
-  var name: String = String
-  var battleTag: List[String] = util.ArrayList[String]
-
-  @ManyToMany(mappedBy="players")
-  var teams: List[Team] = util.ArrayList[Team]
 }
 
 object Player {
+
   implicit object SearchFormat extends Format[Player] {
     def reads(json: JsValue): JsResult[Player] = JsSuccess(new Player(
-      (json \ "name").as[String],
-      (json \ "battleTag").as[List[String]]
+      (json \ "name").as[String]
     ))
 
     def writes(s: Player): JsValue = JsObject(Seq(
-      "name" -> JsString(s.name),
-      "battleTag" -> JsArray(s.battleTag.map(Json.toJson(_)))
+      "name" -> JsString(s.name)
     ))
   }
+
 }

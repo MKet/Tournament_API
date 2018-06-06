@@ -1,37 +1,30 @@
 package entities
 
-import javax.persistence.{GeneratedValue, Id, ManyToMany, OneToMany}
+import javax.persistence.{Entity, GeneratedValue, Id}
 import play.api.libs.json._
 
+@Entity
 class Match {
-  def this(Id: Int, team1: Team, team2: Team ) = {
-    this()
-    this.Id = Id
-    this.team1 = team1
-    this.team2 = team2
-  }
   @Id
   @GeneratedValue
-  var Id : Int = 0
+  var Id: Int = 0
 
-  @OneToMany
-  var team1: Team = _
-  @OneToMany
-  var team2: Team = _
+  def this(Id: Int) = {
+    this()
+    this.Id = Id
+  }
 }
 
 object Match {
+
   implicit object SearchFormat extends Format[Match] {
     def reads(json: JsValue): JsResult[Match] = JsSuccess(new Match(
-      (json \ "Id").as[Integer],
-      (json \ "team1").as[Team],
-      (json \ "team2").as[Team]
+      (json \ "Id").as[Int]
     ))
 
     def writes(s: Match): JsValue = JsObject(Seq(
       "Id" -> JsNumber(s.Id),
-      "team1" -> Json.toJson(s.team1),
-      "team2" -> Json.toJson(s.team2)
     ))
   }
+
 }
