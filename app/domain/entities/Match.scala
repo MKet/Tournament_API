@@ -1,13 +1,20 @@
 package entities
 
-import javax.persistence.{Entity, GeneratedValue, Id}
+import javax.persistence._
 import play.api.libs.json._
 
 @Entity
+@Table(name = "Game")
 class Match {
   @Id
   @GeneratedValue
   var Id: Int = 0
+
+  @OneToOne
+  var team1: Team = _
+  @OneToOne
+  var team2: Team = _
+
 
   def this(Id: Int) = {
     this()

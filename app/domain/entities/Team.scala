@@ -12,8 +12,6 @@ class Team {
   var Id: Int = 0
   @ManyToMany
   var players: util.List[Player] = _
-  @OneToMany
-  var matches: util.List[Match] = _
 
   def this(Id: Int) = {
     this()
