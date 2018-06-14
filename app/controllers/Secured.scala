@@ -1,27 +1,43 @@
 package controllers
 
-import domain.ClaimUser
 import javax.inject.Inject
-import pdi.jwt.JwtSession._
+import domain.ClaimUser
 import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
+import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.Results._
 import play.api.mvc._
+import services._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthenticatedRequest[A](val user: ClaimUser, request: Request[A]) extends WrappedRequest[A](request)
+case class PayloadClass (sub: ClaimUser)
+
+object  PayloadClass {
+  implicit val payLoadFormat: OFormat[PayloadClass] = Json.format[PayloadClass]
+}
+
+class AuthenticatedRequest[A](request: Request[A]) extends WrappedRequest[A](request)
 
 class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) {
   override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
-    System.out.print(request.jwtSession)
-    request.jwtSession.getAs[ClaimUser]("sub") match {
-      case Some(user) =>
-        block(new AuthenticatedRequest[A](user, request)).map(_.refreshJwtSession(request))
-      case _ =>
-        Future(Unauthorized)
-    }
+    var jwtToken = request.headers.get("Authorization").getOrElse("")
+
+    if (jwtToken matches "^Bearer .*") {
+      jwtToken = jwtToken.replaceFirst("^Bearer ", "")
+      if (JwtService.isValidToken(jwtToken)) {
+        JwtService.decodePayload(jwtToken).fold {
+          Future(Unauthorized("Invalid credential"))
+        } { payload =>
+          block(new AuthenticatedRequest(request))
+        }
+      } else {
+        Future(Unauthorized("Invalid credential"))
+      }
+    } else
+      Future(Unauthorized("Invalid credential"))
+
   }
 }
 

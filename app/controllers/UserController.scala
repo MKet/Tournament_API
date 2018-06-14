@@ -1,13 +1,14 @@
 package controllers
 
+import authentikat.jwt.JwtClaimsSet
 import domain.ClaimUser
 import domain.entities.User
 import factories.ServiceFactory
 import javax.inject._
-import pdi.jwt.JwtSession._
-import pdi.jwt._
+import play.api.libs.json.Json
 import play.api.libs.json.Json._
 import play.api.mvc._
+import services.JwtService
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -25,11 +26,11 @@ class UserController @Inject()(cc: ControllerComponents, sf: ServiceFactory)(imp
   def login: Action[User] = Action.async(parse.json[User]) {
     implicit request => {
       val service = sf.UserService
-      if (service login request.body) {
-        var session = JwtSession()
-        session = session ++ (("IssuedAt", session.claim.issuedNow.toJson), ("sub", ClaimUser(request.body.username)))
-        Future(Ok("Success").withJwtSession(session))
-      }
+     if (service login request.body) {
+       val cUser =  ClaimUser(request.body.username)
+       val token =  JwtService.createToken(JwtClaimsSet(Map("sub" -> Json.toJson(cUser).toString())))
+       Future(Ok.withHeaders(("Authorization", "Bearer "+token)))
+     }
       else
         Future(Unauthorized)
     }
