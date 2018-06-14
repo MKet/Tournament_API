@@ -3,12 +3,12 @@ package factories
 import java.io.Closeable
 
 import javax.persistence.Persistence
-import services.{EntityTournamentService, EntityUserService, TournamentService, UserService}
+import services._
 
 trait ServiceFactory extends Closeable {
-  def getUserService: UserService
-
-  def getTournamentService: TournamentService
+  def UserService: UserService
+  def TournamentService: TournamentService
+  def PlayerService: PlayerService
 }
 
 class EntityServiceFactory extends ServiceFactory {
@@ -16,13 +16,18 @@ class EntityServiceFactory extends ServiceFactory {
   private val defaultManager: String = "manager1"
   private val manager = Persistence.createEntityManagerFactory(defaultManager).createEntityManager()
 
-  override def getUserService: UserService = new EntityUserService(
+  override def UserService: UserService = new EntityUserService(
     Persistence.createEntityManagerFactory(defaultManager).createEntityManager()
   )
 
-  override def getTournamentService: TournamentService = new EntityTournamentService(
+  override def TournamentService: TournamentService = new EntityTournamentService(
+    Persistence.createEntityManagerFactory(defaultManager).createEntityManager()
+  )
+
+  override def PlayerService: PlayerService = new EntityPlayerService(
     Persistence.createEntityManagerFactory(defaultManager).createEntityManager()
   )
 
   override def close(): Unit = manager.close()
+
 }

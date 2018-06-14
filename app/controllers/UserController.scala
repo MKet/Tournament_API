@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class UserController @Inject()(cc: ControllerComponents, sf: ServiceFactory)(implicit ec: ExecutionContext) extends AbstractController(cc) {
   def create: Action[User] = Action.async(parse.json[User]) {
     implicit request => {
-      val service = sf.getUserService
+      val service = sf.UserService
       service add request.body
 
       Future(Ok("User created"))
@@ -24,7 +24,7 @@ class UserController @Inject()(cc: ControllerComponents, sf: ServiceFactory)(imp
 
   def login: Action[User] = Action.async(parse.json[User]) {
     implicit request => {
-      val service = sf.getUserService
+      val service = sf.UserService
       if (service login request.body) {
         var session = JwtSession()
         session = session ++ (("IssuedAt", session.claim.issuedNow.toJson), ("sub", ClaimUser(request.body.username)))

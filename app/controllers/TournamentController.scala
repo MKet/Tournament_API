@@ -11,11 +11,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TournamentController @Inject()(cc: SecuredControllerComponents, sf: ServiceFactory)(implicit ec: ExecutionContext) extends SecuredController(cc) {
 
-
-  def create: Action[Tournament] = Action.async(parse.json[Tournament]) {
+  def create: Action[Tournament] = AuthenticatedAction.async(parse.json[Tournament]) {
     implicit request => {
-      val tournamentService = sf.getTournamentService
-      val userService = sf.getUserService
+      val tournamentService = sf.TournamentService
+      val userService = sf.UserService
       val tournament = request.body
       val user = userService.find(request.jwtSession.getAs[ClaimUser]("sub").get.name)
 
@@ -26,7 +25,7 @@ class TournamentController @Inject()(cc: SecuredControllerComponents, sf: Servic
 
   def delete: Action[List[Int]] = AuthenticatedAction.async(parse.json[List[Int]]) {
     implicit request => {
-      val tournamentService = sf.getTournamentService
+      val tournamentService = sf.TournamentService
       tournamentService delete request.body
       Future(Ok("Test"))
     }

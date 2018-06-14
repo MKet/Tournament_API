@@ -2,6 +2,7 @@ import java.time.Clock
 
 import com.google.inject.AbstractModule
 import factories.{EntityServiceFactory, ServiceFactory}
+import services.EntityServiceFactory
 
 /**
   * This class is a Guice module that tells Guice how to bind several

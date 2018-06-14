@@ -15,6 +15,7 @@ class AuthenticatedRequest[A](val user: ClaimUser, request: Request[A]) extends 
 class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) {
   override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
+    System.out.print(request.jwtSession)
     request.jwtSession.getAs[ClaimUser]("sub") match {
       case Some(user) =>
         block(new AuthenticatedRequest[A](user, request)).map(_.refreshJwtSession(request))
