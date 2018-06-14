@@ -2,24 +2,23 @@ package services
 
 import java.io.Closeable
 
-import entities.User
-import javax.inject.Singleton
+import domain.ClaimUser
+import domain.entities.User
 import javax.persistence.{EntityManager, EntityTransaction, NoResultException}
 import org.mindrot.jbcrypt.BCrypt
 import pdi.jwt.JwtSession
 
 trait UserService extends Closeable {
-  def addUser(user: User)
-
-  def login(user: User): String
-
+  def find(name: String) : User
+  def add(user: User)
+  def login(user: User): Boolean
+  def checkName(user: ClaimUser): Boolean
   def close(): Unit
 }
 
-@Singleton
 class EntityUserService(manager: EntityManager) extends UserService {
 
-  override def addUser(user: User): Unit = {
+  override def add(user: User): Unit = {
     val transaction: EntityTransaction = manager.getTransaction
 
     val HashedUser = new User(user.username, BCrypt.hashpw(user.password, BCrypt.gensalt()))
@@ -29,29 +28,27 @@ class EntityUserService(manager: EntityManager) extends UserService {
     transaction.commit()
   }
 
-  override def login(user: User): String = {
+  override def login(user: User): Boolean = {
     try {
-      val userStorage = findUserByName(user)
-      if (userStorage != null && checkUsers(user, userStorage)) {
-        var session = JwtSession()
-        session = session ++ (("IssuedAt", session.claim.issuedNow.toJson), ("Iss", "Tournament_API"), ("sub", user.username))
-        session.serialize
-      }
-      else null
+      val userStorage = findUserByName(user.username)
+      userStorage != null && checkUsers(user, userStorage)
     }
     catch {
-      case _: NoResultException => null
+      case _: NoResultException => false
     }
   }
 
   private def checkUsers(u: User, u2: User) = u.username.equals(u2.username) && BCrypt.checkpw(u.password, u2.password)
 
-  private def findUserByName(u: User) = manager
+  def findUserByName(name: String): User = manager
     .createNamedQuery("User.FindUserByName")
-    .setParameter("username", u.username)
+    .setParameter("username", name)
     .getSingleResult
     .asInstanceOf[User]
 
   def close(): Unit = manager.close()
 
+  override def find(name: String): User = findUserByName(name)
+
+  override def checkName(user: ClaimUser): Boolean = find(user.name) != null
 }

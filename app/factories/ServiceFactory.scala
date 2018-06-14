@@ -1,19 +1,28 @@
 package factories
 
+import java.io.Closeable
+
 import javax.inject.Singleton
 import javax.persistence.Persistence
-import services.{EntityUserService, UserService}
+import services.{EntityTournamentService, EntityUserService, TournamentService, UserService}
 
-trait ServiceFactory {
-  def getUserService : UserService
+trait ServiceFactory extends Closeable{
+  def getUserService: UserService
+  def getTournamentService: TournamentService
 }
 
-@Singleton
 class EntityServiceFactory extends ServiceFactory {
 
   private val defaultManager: String = "manager1"
+  private val manager = Persistence.createEntityManagerFactory(defaultManager).createEntityManager()
 
-  def getUserService: UserService = new EntityUserService(
+  override def getUserService: UserService = new EntityUserService(
     Persistence.createEntityManagerFactory(defaultManager).createEntityManager()
   )
+
+  override def getTournamentService: TournamentService = new EntityTournamentService(
+    Persistence.createEntityManagerFactory(defaultManager).createEntityManager()
+  )
+
+  override def close(): Unit = manager.close()
 }
