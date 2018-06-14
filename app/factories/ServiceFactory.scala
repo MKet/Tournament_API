@@ -2,12 +2,12 @@ package factories
 
 import java.io.Closeable
 
-import javax.inject.Singleton
 import javax.persistence.Persistence
 import services.{EntityTournamentService, EntityUserService, TournamentService, UserService}
 
-trait ServiceFactory extends Closeable{
+trait ServiceFactory extends Closeable {
   def getUserService: UserService
+
   def getTournamentService: TournamentService
 }
 

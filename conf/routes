@@ -4,9 +4,9 @@
 # ~~~~
 
 # user stuff
-POST        /user                controllers.UserController.create
-POST        /login               controllers.UserController.login
+POST          /user              controllers.UserController.create
+POST          /login             controllers.UserController.login
 
 # tournament stuff
-POST    /tournament                 controllers.TournamentController.create
-DELETE  /tournament                 controllers.TournamentController.delete
+POST          /tournament        controllers.TournamentController.create
+DELETE        /tournament        controllers.TournamentController.delete

@@ -6,13 +6,16 @@ import domain.ClaimUser
 import domain.entities.User
 import javax.persistence.{EntityManager, EntityTransaction, NoResultException}
 import org.mindrot.jbcrypt.BCrypt
-import pdi.jwt.JwtSession
 
 trait UserService extends Closeable {
-  def find(name: String) : User
+  def find(name: String): User
+
   def add(user: User)
+
   def login(user: User): Boolean
+
   def checkName(user: ClaimUser): Boolean
+
   def close(): Unit
 }
 
@@ -48,7 +51,7 @@ class EntityUserService(manager: EntityManager) extends UserService {
 
   def close(): Unit = manager.close()
 
-  override def find(name: String): User = findUserByName(name)
-
   override def checkName(user: ClaimUser): Boolean = find(user.name) != null
+
+  override def find(name: String): User = findUserByName(name)
 }

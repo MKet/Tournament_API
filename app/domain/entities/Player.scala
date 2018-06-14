@@ -9,7 +9,7 @@ import play.api.libs.json._
 class Player {
   @Id
   var name: String = ""
-  @ElementCollection(targetClass=classOf[String])
+  @ElementCollection(targetClass = classOf[String])
   var battleTag: util.List[String] = _
   @ManyToMany(mappedBy = "players")
   var teams: util.List[Team] = _
