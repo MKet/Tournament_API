@@ -1,8 +1,9 @@
-package entities
+package domain.entities
 
 import javax.persistence._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
+import java.util
 
 @Entity
 @NamedQuery(name = "User.FindUserByName", query = "from User u where u.username =:username")
@@ -10,6 +11,8 @@ class User {
   @Id
   var username: String = ""
   var password: String = ""
+  @ElementCollection(targetClass=classOf[Tournament])
+  var tournament: util.List[Tournament] = _
 
   def this(username: String,
            password: String) = {
