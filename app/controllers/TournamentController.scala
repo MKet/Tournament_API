@@ -24,7 +24,7 @@ class TournamentController @Inject()(cc: SecuredControllerComponents, sf: Servic
     implicit request => {
       val tournamentService = sf.TournamentService
       tournamentService delete request.body
-      Future(Ok("Test"))
+      Future(Ok("Tournaments deleted"))
     }
   }
 }

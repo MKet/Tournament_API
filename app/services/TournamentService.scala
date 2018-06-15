@@ -44,7 +44,7 @@ class EntityTournamentService(manager: EntityManager) extends TournamentService 
 
     for (i: Int <- body) {
       manager.createNamedQuery("Tournament.DeleteAllIn")
-        .setParameter(":ids", body.asJava)
+        .setParameter("ids", body.asJava)
         .executeUpdate
     }
 
