@@ -28,7 +28,7 @@ class UserController @Inject()(cc: ControllerComponents, sf: ServiceFactory)(imp
       val service = sf.UserService
      if (service login request.body) {
        val cUser =  ClaimUser(request.body.username)
-       val token =  JwtService.createToken(JwtClaimsSet(Map("sub" -> Json.toJson(cUser).toString())))
+       val token =  JwtService.createToken(JwtClaimsSet(Map("sub" -> cUser)))
        Future(Ok.withHeaders(("Authorization", "Bearer "+token)))
      }
       else

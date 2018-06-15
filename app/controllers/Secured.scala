@@ -11,13 +11,13 @@ import services._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class PayloadClass (sub: ClaimUser)
+case class PayloadData (sub: ClaimUser)
 
-object  PayloadClass {
-  implicit val payLoadFormat: OFormat[PayloadClass] = Json.format[PayloadClass]
+object PayloadData {
+  implicit val payLoadFormat: OFormat[PayloadData] = Json.format[PayloadData]
 }
 
-class AuthenticatedRequest[A](request: Request[A]) extends WrappedRequest[A](request)
+class AuthenticatedRequest[A](payload: PayloadData, request: Request[A]) extends WrappedRequest[A](request)
 
 class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) {
@@ -28,16 +28,25 @@ class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit
       jwtToken = jwtToken.replaceFirst("^Bearer ", "")
       if (JwtService.isValidToken(jwtToken)) {
         JwtService.decodePayload(jwtToken).fold {
+          System.out.println("Jwttoken misformed")
           Future(Unauthorized("Invalid credential"))
-        } { payload =>
-          block(new AuthenticatedRequest(request))
+        } { jwt =>
+          Json.parse(jwt).validate[PayloadData].fold(
+            invalid = { _ =>
+              System.out.println("Payload data misformed")
+              Future(Unauthorized("Invalid credential"))
+          }, valid = { payload: PayloadData =>
+            block(new AuthenticatedRequest(payload, request))
+          })
         }
       } else {
+        System.out.println("Jwttoken invalid")
         Future(Unauthorized("Invalid credential"))
       }
-    } else
+    } else {
+      System.out.println("No Bearer prefix")
       Future(Unauthorized("Invalid credential"))
-
+    }
   }
 }
 
