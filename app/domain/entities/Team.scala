@@ -28,8 +28,8 @@ object Team {
       (json \ "name").as[String]
     ))
 
-    def writes(s: Team): JsObject = Json.obj(
-      "name" -> s.name
+    def writes(team: Team): JsObject = Json.obj(
+      "name" -> team.name
     )
   }
 

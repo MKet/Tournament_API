@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 @Entity
 @NamedQueries(Array(
   new NamedQuery(name = "Tournament.DeleteAllIn", query = "delete from Tournament t where t.Id in :ids and t.owner.username = :owner"),
-  new NamedQuery(name = "Tournament.GetAllOwnerBy", query = "Select name From Tournament t where t.owner.username= :owner")
+  new NamedQuery(name = "Tournament.GetAllOwnerBy", query = "From Tournament t where t.owner.username= :owner")
 ))
 class Tournament {
 
@@ -47,12 +47,12 @@ object Tournament {
       (json \ "matches").as[List[Match]].asJava
     ))
 
-    def writes(s: Tournament): JsObject =
+    def writes(tournament: Tournament): JsObject =
       Json.obj(
-        "id" -> s.Id,
-        "name" -> s.name,
-        "teams" -> s.teams.asScala,
-        "matches" -> s.matches.asScala
+        "id" -> tournament.Id,
+        "name" -> tournament.name,
+        "teams" -> tournament.teams.asScala,
+        "matches" -> tournament.matches.asScala
       )
   }
 

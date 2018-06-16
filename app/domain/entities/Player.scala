@@ -44,10 +44,10 @@ object Player {
       (json \ "teams").as[List[Team]].asJava
     ))
 
-    def writes(s: Player): JsObject = Json.obj(
-      "name" -> s.name,
-      "battleTag" -> s.battleTag.asScala,
-      "teams" -> s.teams.asScala
+    def writes(player: Player): JsObject = Json.obj(
+      "name" -> player.name,
+      "battleTag" -> player.battleTag.asScala,
+      "teams" -> player.teams.asScala
     )
   }
 

@@ -6,7 +6,7 @@ import javax.inject.Inject
 import play.api.libs.json
 import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent}
-import play.libs.Json
+import play.api.libs.json._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -31,7 +31,7 @@ class TournamentController @Inject()(cc: SecuredControllerComponents, sf: Servic
       val tournamentService = sf.TournamentService
 
       val tournamentList = tournamentService getAllOwnedBy authRequest.payload.sub.name
-      Future(Ok(tournamentList.toString()))
+      Future(Ok(Json.toJson(tournamentList).toString))
     }
   }
 

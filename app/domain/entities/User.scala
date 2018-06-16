@@ -29,9 +29,9 @@ object User {
       (json \ "password").as[String]
     ))
 
-    def writes(s: User): JsObject = Json.obj(
-      "username" -> s.username,
-      "password" -> s.password
+    def writes(user: User): JsObject = Json.obj(
+      "username" -> user.username,
+      "password" -> user.password
     )
   }
 

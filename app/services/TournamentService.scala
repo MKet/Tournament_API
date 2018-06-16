@@ -9,7 +9,7 @@ import java.util
 import scala.collection.JavaConverters._
 
 trait TournamentService extends Closeable {
-  def getAllOwnedBy(user: String) : List[String]
+  def getAllOwnedBy(user: String) : List[Tournament]
   def add(t: Tournament, u: User) : Unit
   def delete(body: List[Int], user: String) : Unit
   def close(): Unit
@@ -49,8 +49,8 @@ class EntityTournamentService(manager: EntityManager) extends TournamentService 
     transaction.commit()
   }
 
-  override def getAllOwnedBy(user: String): List[String] =
+  override def getAllOwnedBy(user: String): List[Tournament] =
     manager.createNamedQuery("Tournament.GetAllOwnerBy")
       .setParameter("owner", user)
-      .getResultList.asInstanceOf[util.List[String]].asScala.toList
+      .getResultList.asInstanceOf[util.List[Tournament]].asScala.toList
 }
