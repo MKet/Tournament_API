@@ -31,7 +31,7 @@ class TournamentController @Inject()(cc: SecuredControllerComponents, sf: Servic
       val tournamentService = sf.TournamentService
 
       val tournamentList = tournamentService getAllOwnedBy authRequest.payload.sub.name
-      Future(Ok(tournamentList.head))
+      Future(Ok(tournamentList.toString()))
     }
   }
 
