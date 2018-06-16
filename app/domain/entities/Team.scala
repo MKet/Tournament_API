@@ -28,9 +28,9 @@ object Team {
       (json \ "name").as[String]
     ))
 
-    def writes(s: Team): JsValue = JsObject(Seq(
-      "name" -> JsString(s.name)
-    ))
+    def writes(s: Team): JsObject = Json.obj(
+      "name" -> s.name
+    )
   }
 
 }

@@ -9,7 +9,10 @@ import scala.collection.JavaConverters._
 
 
 @Entity
-@NamedQuery(name = "Tournament.DeleteAllIn", query = "delete from Tournament t where t.Id in :ids")
+@NamedQueries(Array(
+  new NamedQuery(name = "Tournament.DeleteAllIn", query = "delete from Tournament t where t.Id in :ids and t.owner.username = :owner"),
+  new NamedQuery(name = "Tournament.GetAllOwnerBy", query = "Select name From Tournament t where t.owner.username= :owner")
+))
 class Tournament {
 
   @Id
@@ -20,6 +23,8 @@ class Tournament {
   var teams: util.List[Team] = _
   @OneToMany
   var matches: util.List[Match] = _
+  @ManyToOne
+  var owner: User = _
 
   def this(name: String) = {
     this()
@@ -42,12 +47,13 @@ object Tournament {
       (json \ "matches").as[List[Match]].asJava
     ))
 
-    def writes(s: Tournament): JsValue = JsObject(Seq(
-      "id" -> JsNumber(s.Id),
-      "name" -> JsString(s.name),
-      "teams" -> Json.toJson(s.teams.asScala),
-      "matches" -> Json.toJson(s.matches.asScala)
-    ))
+    def writes(s: Tournament): JsObject =
+      Json.obj(
+        "id" -> s.Id,
+        "name" -> s.name,
+        "teams" -> s.teams.asScala,
+        "matches" -> s.matches.asScala
+      )
   }
 
 }

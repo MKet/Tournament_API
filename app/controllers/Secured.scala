@@ -1,23 +1,17 @@
 package controllers
 
+import domain.PayloadData
 import javax.inject.Inject
-import domain.ClaimUser
 import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc._
 import services._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class PayloadData (sub: ClaimUser)
-
-object PayloadData {
-  implicit val payLoadFormat: OFormat[PayloadData] = Json.format[PayloadData]
-}
-
-class AuthenticatedRequest[A](payload: PayloadData, request: Request[A]) extends WrappedRequest[A](request)
+class AuthenticatedRequest[A](val payload: PayloadData, request: Request[A]) extends WrappedRequest[A](request)
 
 class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) {

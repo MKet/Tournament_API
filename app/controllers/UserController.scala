@@ -1,12 +1,10 @@
 package controllers
 
 import authentikat.jwt.JwtClaimsSet
-import domain.ClaimUser
+import domain.{ClaimUser, PayloadData}
 import domain.entities.User
 import factories.ServiceFactory
 import javax.inject._
-import play.api.libs.json.Json
-import play.api.libs.json.Json._
 import play.api.mvc._
 import services.JwtService
 
@@ -28,11 +26,20 @@ class UserController @Inject()(cc: ControllerComponents, sf: ServiceFactory)(imp
       val service = sf.UserService
      if (service login request.body) {
        val cUser =  ClaimUser(request.body.username)
-       val token =  JwtService.createToken(JwtClaimsSet(Map("sub" -> cUser)))
+       val payloadData = PayloadData(cUser)
+       val token =  JwtService.createToken(JwtClaimsSet(toMap(payloadData)))
+
        Future(Ok.withHeaders(("Authorization", "Bearer "+token)))
      }
       else
         Future(Unauthorized)
     }
   }
+
+  def toMap(cc: AnyRef) =
+    (Map[String, Any]() /: cc.getClass.getDeclaredFields) {
+      (a, f) =>
+        f.setAccessible(true)
+        a + (f.getName -> f.get(cc))
+    }
 }

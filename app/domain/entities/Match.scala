@@ -29,9 +29,9 @@ object Match {
       (json \ "Id").as[Int]
     ))
 
-    def writes(s: Match): JsValue = JsObject(Seq(
-      "Id" -> JsNumber(s.Id),
-    ))
+    def writes(s: Match): JsObject = Json.obj(
+      "Id" -> s.Id,
+    )
   }
 
 }

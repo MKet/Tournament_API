@@ -1,10 +1,12 @@
 package controllers
 
-import domain.ClaimUser
 import domain.entities._
 import factories.ServiceFactory
 import javax.inject.Inject
-import play.api.mvc.Action
+import play.api.libs.json
+import play.api.libs.json.JsObject
+import play.api.mvc.{Action, AnyContent}
+import play.libs.Json
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -12,18 +14,33 @@ class TournamentController @Inject()(cc: SecuredControllerComponents, sf: Servic
 
   def create: Action[Tournament] = AuthenticatedAction.async(parse.json[Tournament]) {
     implicit request => {
+      val authRequest = request.asInstanceOf[AuthenticatedRequest[Tournament]]
       val tournamentService = sf.TournamentService
       val userService = sf.UserService
       val tournament = request.body
+      val user = userService find authRequest.payload.sub.name
 
+      tournamentService.add(tournament, user)
       Future(Ok("Tournament created"))
     }
   }
 
-  def delete: Action[List[Int]] = AuthenticatedAction.async(parse.json[List[Int]]) {
+  def get: Action[AnyContent] = AuthenticatedAction.async(parse.anyContent) {
     implicit request => {
+      val authRequest = request.asInstanceOf[AuthenticatedRequest[Tournament]]
       val tournamentService = sf.TournamentService
-      tournamentService delete request.body
+
+      val tournamentList = tournamentService getAllOwnedBy authRequest.payload.sub.name
+      Future(Ok(tournamentList.head))
+    }
+  }
+
+  def delete: Action[List[Int]] = AuthenticatedAction.async(parse.json[List[Int]]){
+    implicit request => {
+      val authRequest = request.asInstanceOf[AuthenticatedRequest[Tournament]]
+      val tournamentService = sf.TournamentService
+
+      tournamentService.delete(request.body, authRequest.payload.sub.name)
       Future(Ok("Tournaments deleted"))
     }
   }

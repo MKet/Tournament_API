@@ -3,10 +3,12 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# user stuff
 POST          /user              controllers.UserController.create
 POST          /login             controllers.UserController.login
 
-# tournament stuff
 POST          /tournament        controllers.TournamentController.create
 DELETE        /tournament        controllers.TournamentController.delete
+GET           /tournament        controllers.TournamentController.get
+
+PUT           /player            controllers.PlayerController.create
+DELETE        /player            controllers.PlayerController.delete

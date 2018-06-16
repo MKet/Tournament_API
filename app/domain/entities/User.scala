@@ -12,8 +12,6 @@ class User {
   @Id
   var username: String = ""
   var password: String = ""
-  @ElementCollection(targetClass = classOf[Tournament])
-  var tournament: util.List[Tournament] = _
 
   def this(username: String,
            password: String) = {
@@ -31,10 +29,10 @@ object User {
       (json \ "password").as[String]
     ))
 
-    def writes(s: User): JsValue = JsObject(Seq(
-      "username" -> JsString(s.username),
-      "password" -> JsString(s.password)
-    ))
+    def writes(s: User): JsObject = Json.obj(
+      "username" -> s.username,
+      "password" -> s.password
+    )
   }
 
 }
