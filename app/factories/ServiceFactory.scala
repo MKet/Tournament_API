@@ -7,7 +7,9 @@ import services._
 
 trait ServiceFactory extends Closeable {
   def UserService: UserService
+
   def TournamentService: TournamentService
+
   def PlayerService: PlayerService
 }
 

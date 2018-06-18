@@ -1,14 +1,15 @@
 package services
 
-import domain.entities.{Player, Team, User}
+import domain.entities.Player
 import javax.persistence.{EntityManager, EntityTransaction, NoResultException}
-import org.mindrot.jbcrypt.BCrypt
 
 import scala.collection.JavaConverters._
 
 trait PlayerService {
   def add(p: Player): Unit
+
   def delete(names: List[String]): Unit
+
   def find(name: String): Player
 }
 
@@ -21,7 +22,6 @@ class EntityPlayerService(manager: EntityManager) extends PlayerService {
       val player: Player = manager.createNamedQuery("Player.FindPlayerByName")
         .setParameter("name", p.name)
         .getSingleResult.asInstanceOf[Player]
-      player.teams = p.teams
       player.battleTag = p.battleTag
     }
     catch {
@@ -34,17 +34,15 @@ class EntityPlayerService(manager: EntityManager) extends PlayerService {
     val transaction: EntityTransaction = manager.getTransaction
 
     transaction.begin()
-
-      manager.createNamedQuery("Player.DeleteAllIn")
-        .setParameter("ids", names.asJava)
-        .executeUpdate
+    manager.createNamedQuery("Player.DeleteAllIn")
+      .setParameter("ids", names.asJava)
+      .executeUpdate
   }
 
-  def findUserByName(name: String): User = manager
-    .createNamedQuery("User.FindUserByName")
-    .setParameter("username", name)
+  override def find(name: String): Player = manager
+    .createNamedQuery("Player.FindPlayerByName")
+    .setParameter("name", name)
     .getSingleResult
-    .asInstanceOf[User]
+    .asInstanceOf[Player]
 
-  override def find(name: String): Player = ???
 }

@@ -3,8 +3,8 @@ package controllers
 import domain.entities._
 import factories.ServiceFactory
 import javax.inject.Inject
-import play.api.mvc.{Action, AnyContent}
 import play.api.libs.json._
+import play.api.mvc.{Action, AnyContent}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -33,7 +33,7 @@ class TournamentController @Inject()(cc: SecuredControllerComponents, sf: Servic
     }
   }
 
-  def delete: Action[List[Int]] = AuthenticatedAction.async(parse.json[List[Int]]){
+  def delete: Action[List[Int]] = AuthenticatedAction.async(parse.json[List[Int]]) {
     implicit request => {
       val authRequest = request.asInstanceOf[AuthenticatedRequest[Tournament]]
       val tournamentService = sf.TournamentService

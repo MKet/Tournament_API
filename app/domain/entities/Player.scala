@@ -9,29 +9,26 @@ import scala.collection.JavaConverters._
 
 @Entity
 @NamedQueries(Array(
-  new NamedQuery(name="Player.FindPlayerByName",
-    query="from Player p where p.name =:name"),
-  new NamedQuery(name="Player.DeleteAllIn",
-    query="delete from Player p where p.name in :ids")
+  new NamedQuery(name = "Player.FindPlayerByName",
+    query = "from Player p where p.name =:name"),
+  new NamedQuery(name = "Player.DeleteAllIn",
+    query = "delete from Player p where p.name in :ids")
 ))
 class Player {
   @Id
   var name: String = ""
   @ElementCollection(targetClass = classOf[String])
   var battleTag: util.List[String] = _
-  @ManyToMany(mappedBy = "players")
-  var teams: util.List[Team] = _
 
   def this(name: String) = {
     this()
     this.name = name
   }
 
-  def this(name: String, battleTag: util.List[String], teams: util.List[Team]) = {
+  def this(name: String, battleTag: util.List[String]) = {
     this()
     this.name = name
     this.battleTag = battleTag
-    this.teams = teams
   }
 }
 
@@ -40,14 +37,12 @@ object Player {
   implicit object SearchFormat extends Format[Player] {
     def reads(json: JsValue): JsResult[Player] = JsSuccess(new Player(
       (json \ "name").as[String],
-      (json \ "battleTag").as[List[String]].asJava,
-      (json \ "teams").as[List[Team]].asJava
+      (json \ "battleTag").as[List[String]].asJava
     ))
 
     def writes(player: Player): JsObject = Json.obj(
       "name" -> player.name,
-      "battleTag" -> player.battleTag.asScala,
-      "teams" -> player.teams.asScala
+      "battleTag" -> player.battleTag.asScala
     )
   }
 

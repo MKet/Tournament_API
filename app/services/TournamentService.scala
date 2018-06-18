@@ -1,17 +1,20 @@
 package services
 
 import java.io.Closeable
+import java.util
 
 import domain.entities.{Tournament, User}
 import javax.persistence.{EntityManager, EntityTransaction}
-import java.util
 
 import scala.collection.JavaConverters._
 
 trait TournamentService extends Closeable {
-  def getAllOwnedBy(user: String) : List[Tournament]
-  def add(t: Tournament, u: User) : Unit
-  def delete(body: List[Int], user: String) : Unit
+  def getAllOwnedBy(user: String): List[Tournament]
+
+  def add(t: Tournament, u: User): Unit
+
+  def delete(body: List[Int], user: String): Unit
+
   def close(): Unit
 }
 
@@ -41,10 +44,10 @@ class EntityTournamentService(manager: EntityManager) extends TournamentService 
 
     transaction.begin()
 
-      manager.createNamedQuery("Tournament.DeleteAllIn")
-        .setParameter("ids", body.asJava)
-        .setParameter("owner", user)
-        .executeUpdate
+    manager.createNamedQuery("Tournament.DeleteAllIn")
+      .setParameter("ids", body.asJava)
+      .setParameter("owner", user)
+      .executeUpdate
 
     transaction.commit()
   }

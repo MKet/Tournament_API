@@ -1,7 +1,5 @@
 package domain.entities
 
-import java.util
-
 import javax.persistence._
 import play.api.libs.json.Reads._
 import play.api.libs.json._

@@ -1,12 +1,8 @@
 package controllers
 
-import authentikat.jwt.JwtClaimsSet
-import domain.{ClaimUser, PayloadData}
 import domain.entities.User
 import factories.ServiceFactory
 import javax.inject._
-import org.joda.time.DateTime
-import play.api.Application
 import play.api.mvc._
 import services.JwtService
 
@@ -26,9 +22,9 @@ class UserController @Inject()(cc: ControllerComponents, sf: ServiceFactory)(imp
   def login: Action[User] = Action.async(parse.json[User]) {
     implicit request => {
       val service = sf.UserService
-     if (service login request.body) {
-       Future(JwtService.addAuthHeader(Ok, request.body.username))
-     }
+      if (service login request.body) {
+        Future(JwtService.addAuthHeader(Ok, request.body.username))
+      }
       else
         Future(Unauthorized)
     }

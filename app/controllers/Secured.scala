@@ -1,10 +1,7 @@
 package controllers
 
-import authentikat.jwt.JwtClaimsSet
-import domain.{ClaimUser, PayloadData}
+import domain.PayloadData
 import javax.inject.Inject
-import org.joda.time.{DateTime, Seconds}
-import play.api.Application
 import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
 import play.api.libs.json.Json
@@ -34,7 +31,7 @@ class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit
             invalid = { _ =>
               System.out.println("Payload data misformed")
               Future(Unauthorized("Invalid credentials"))
-          }, valid = { payload: PayloadData =>
+            }, valid = { payload: PayloadData =>
               if (JwtService.isValidPayload(payload))
                 block(new AuthenticatedRequest(payload, request)).transform({
                   result: Try[Result] =>
@@ -46,7 +43,7 @@ class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit
                 })
               else
                 Future(Unauthorized("Token expired"))
-          })
+            })
         }
       } else {
         System.out.println("Jwttoken invalid")

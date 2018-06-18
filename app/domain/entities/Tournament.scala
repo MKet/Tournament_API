@@ -17,7 +17,7 @@ class Tournament {
 
   @Id
   @GeneratedValue
-  var Id: Int = 0
+  val Id: Int = 0
   var name: String = _
   @OneToMany
   var teams: util.List[Team] = _
