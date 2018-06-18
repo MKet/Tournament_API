@@ -3,8 +3,6 @@ package controllers
 import domain.entities._
 import factories.ServiceFactory
 import javax.inject.Inject
-import play.api.libs.json
-import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent}
 import play.api.libs.json._
 
