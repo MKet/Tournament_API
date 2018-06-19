@@ -10,7 +10,6 @@ import play.api.mvc._
 import services._
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 class AuthenticatedRequest[A](val payload: PayloadData, request: Request[A]) extends WrappedRequest[A](request)
 
@@ -20,7 +19,12 @@ class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit
   override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
     var jwtToken = request.headers.get("Authorization").getOrElse("")
 
-    if (jwtToken matches "^Bearer .*") {
+    // regex () <-- haakjes, groups en extracton
+
+    // Monad / monade --> for
+
+
+    if (jwtToken matches "^Bearer (.*)$") {
       jwtToken = jwtToken.replaceFirst("^Bearer ", "")
       if (JwtService.isValidToken(jwtToken)) {
         JwtService.decodePayload(jwtToken).fold {

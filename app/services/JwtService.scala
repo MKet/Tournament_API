@@ -1,7 +1,7 @@
 package services
 
 import authentikat.jwt.{JsonWebToken, JwtClaimsSet, JwtHeader}
-import domain.{ClaimUser, PayloadData}
+import domain.PayloadData
 import org.joda.time.DateTime
 import play.api.mvc.{Request, Result}
 
@@ -27,8 +27,7 @@ object JwtService {
     }
 
   def addAuthHeader(result: Result, sub: String): Result = {
-    val cUser = ClaimUser(sub)
-    val payloadData = PayloadData(cUser, DateTime.now().plusMinutes(MaxAge).getMillis / 1000)
+    val payloadData = PayloadData(sub, DateTime.now().plusMinutes(MaxAge).getMillis / 1000)
     val token = createToken(JwtClaimsSet(toMap(payloadData)))
 
     result.withHeaders(("Authorization", "Bearer " + token))

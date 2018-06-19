@@ -18,7 +18,7 @@ class TournamentController @Inject()(cc: SecuredControllerComponents, sf: Servic
       val tournament = request.body
 
       try {
-        val user = userService find authRequest.payload.sub.name
+        val user = userService find authRequest.payload.sub
         tournamentService.add(tournament, user)
       } finally {
         tournamentService.close()
@@ -34,7 +34,7 @@ class TournamentController @Inject()(cc: SecuredControllerComponents, sf: Servic
       val tournamentService = sf.TournamentService
 
       try {
-        val tournamentList = tournamentService getAllOwnedBy authRequest.payload.sub.name
+        val tournamentList = tournamentService getAllOwnedBy authRequest.payload.sub
         Future(Ok(Json.toJson(tournamentList).toString))
       }
       finally {
@@ -48,7 +48,7 @@ class TournamentController @Inject()(cc: SecuredControllerComponents, sf: Servic
       val authRequest = request.asInstanceOf[AuthenticatedRequest[Tournament]]
       val tournamentService = sf.TournamentService
 
-      tournamentService.delete(request.body, authRequest.payload.sub.name)
+      tournamentService.delete(request.body, authRequest.payload.sub)
       tournamentService.close()
       Future(Ok("Tournaments deleted"))
     }
