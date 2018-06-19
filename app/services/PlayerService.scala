@@ -1,11 +1,13 @@
 package services
 
+import java.io.Closeable
+
 import domain.entities.Player
 import javax.persistence.{EntityManager, EntityTransaction, NoResultException}
 
 import scala.collection.JavaConverters._
 
-trait PlayerService {
+trait PlayerService extends Closeable{
   def add(p: Player): Unit
 
   def delete(names: List[String]): Unit
@@ -45,4 +47,5 @@ class EntityPlayerService(manager: EntityManager) extends PlayerService {
     .getSingleResult
     .asInstanceOf[Player]
 
+  override def close(): Unit = if (manager.isOpen) manager.close()
 }

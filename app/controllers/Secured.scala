@@ -24,29 +24,22 @@ class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit
       jwtToken = jwtToken.replaceFirst("^Bearer ", "")
       if (JwtService.isValidToken(jwtToken)) {
         JwtService.decodePayload(jwtToken).fold {
-          System.out.println("Jwttoken misformed")
+          System.out.println("Jwt-token malformed")
           Future(Unauthorized("Invalid credentials"))
         } { jwt =>
           Json.parse(jwt).validate[PayloadData].fold(
             invalid = { _ =>
-              System.out.println("Payload data misformed")
+              System.out.println("Payload data malformed")
               Future(Unauthorized("Invalid credentials"))
             }, valid = { payload: PayloadData =>
               if (JwtService.isValidPayload(payload))
-                block(new AuthenticatedRequest(payload, request)).transform({
-                  result: Try[Result] =>
-                    if (result.isSuccess) {
-                      Try(JwtService.addAuthHeader(result.get, payload.sub.name))
-                    } else {
-                      result
-                    }
-                })
+                block(new AuthenticatedRequest(payload, request))
               else
                 Future(Unauthorized("Token expired"))
             })
         }
       } else {
-        System.out.println("Jwttoken invalid")
+        System.out.println("Jwt-token invalid")
         Future(Unauthorized("Invalid credentials"))
       }
     } else {

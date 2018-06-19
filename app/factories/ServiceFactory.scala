@@ -30,6 +30,6 @@ class EntityServiceFactory extends ServiceFactory {
     Persistence.createEntityManagerFactory(defaultManager).createEntityManager()
   )
 
-  override def close(): Unit = manager.close()
+  override def close(): Unit = if (manager.isOpen) manager.close()
 
 }

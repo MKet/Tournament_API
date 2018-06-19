@@ -13,20 +13,31 @@ class UserController @Inject()(cc: ControllerComponents, sf: ServiceFactory)(imp
   def create: Action[User] = Action.async(parse.json[User]) {
     implicit request => {
       val service = sf.UserService
-      service add request.body
-
-      Future(Ok("User created"))
+      try {
+        val service = sf.UserService
+        service add request.body
+        service.close()
+        Future(Ok("User created"))
+      }
+      finally {
+        service.close()
+      }
     }
   }
 
   def login: Action[User] = Action.async(parse.json[User]) {
     implicit request => {
       val service = sf.UserService
-      if (service login request.body) {
-        Future(JwtService.addAuthHeader(Ok, request.body.username))
+      try {
+        if (service login request.body) {
+          Future(JwtService.addAuthHeader(Ok, request.body.username))
+        }
+        else
+          Future(Unauthorized)
       }
-      else
-        Future(Unauthorized)
+      finally {
+        service.close()
+      }
     }
   }
 }

@@ -37,7 +37,7 @@ class EntityTournamentService(manager: EntityManager) extends TournamentService 
     transaction.commit()
   }
 
-  override def close(): Unit = manager.close()
+  override def close(): Unit = if (manager.isOpen) manager.close()
 
   override def delete(body: List[Int], user: String): Unit = {
     val transaction: EntityTransaction = manager.getTransaction

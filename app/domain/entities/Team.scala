@@ -5,6 +5,8 @@ import java.util
 import javax.persistence._
 import play.api.libs.json._
 
+import scala.collection.JavaConverters._
+
 @Entity
 class Team {
   @Id
@@ -18,6 +20,12 @@ class Team {
   def this(name: String) = {
     this()
     this.name = name
+  }
+
+  def this(name: String, players: util.List[Player]) = {
+    this()
+    this.name = name
+    this.players = players
   }
 }
 

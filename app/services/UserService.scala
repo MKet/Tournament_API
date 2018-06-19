@@ -49,7 +49,7 @@ class EntityUserService(manager: EntityManager) extends UserService {
     .getSingleResult
     .asInstanceOf[User]
 
-  def close(): Unit = manager.close()
+  override def close(): Unit = if (manager.isOpen) manager.close()
 
   override def checkName(user: ClaimUser): Boolean = find(user.name) != null
 
