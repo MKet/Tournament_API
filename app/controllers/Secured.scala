@@ -1,5 +1,7 @@
 package controllers
 
+import java.util.regex.Pattern
+
 import domain.PayloadData
 import javax.inject.Inject
 import play.api.http.FileMimeTypes
@@ -17,39 +19,23 @@ class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit
   extends ActionBuilderImpl(parser) {
 
   override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
-    var jwtToken = request.headers.get("Authorization").getOrElse("")
+    val jwtToken = request.headers.get("Authorization").getOrElse("")
 
-    // regex () <-- haakjes, groups en extracton
-
-    // Monad / monade --> for
-
-
-    if (jwtToken matches "^Bearer (.*)$") {
-      jwtToken = jwtToken.replaceFirst("^Bearer ", "")
-      if (JwtService.isValidToken(jwtToken)) {
-        JwtService.decodePayload(jwtToken).fold {
-          System.out.println("Jwt-token malformed")
-          Future(Unauthorized("Invalid credentials"))
-        } { jwt =>
-          Json.parse(jwt).validate[PayloadData].fold(
-            invalid = { _ =>
-              System.out.println("Payload data malformed")
-              Future(Unauthorized("Invalid credentials"))
-            }, valid = { payload: PayloadData =>
-              if (JwtService.isValidPayload(payload))
-                block(new AuthenticatedRequest(payload, request))
-              else
-                Future(Unauthorized("Token expired"))
-            })
+      val m = Pattern.compile("^Bearer (.*)?$").matcher(jwtToken)
+      if (m.find() && JwtService.isValidToken(m.group(1))) {
+        (for {
+          jwt <- JwtService.decodePayload(m.group(1))
+          payload <- Json.parse(jwt).asOpt[PayloadData]
+        } yield payload) match {
+          case Some(payload) =>
+            block(new AuthenticatedRequest(payload, request))
+          case _ =>
+            Future(Unauthorized)
         }
       } else {
         System.out.println("Jwt-token invalid")
         Future(Unauthorized("Invalid credentials"))
       }
-    } else {
-      System.out.println("No Bearer prefix")
-      Future(Unauthorized("Invalid credentials"))
-    }
   }
 }
 
