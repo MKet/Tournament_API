@@ -14,15 +14,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthenticatedRequest[A](val payload: PayloadData, request: Request[A]) extends WrappedRequest[A](request)
 
-class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit ec: ExecutionContext)
+class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default, jwtService: JwtService)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) {
 
   override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
     val jwtToken = request.headers.get("Authorization").getOrElse("")
 
       val m = Pattern.compile("^Bearer ([a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+))?$").matcher(jwtToken)
-      if (m.find() && JwtService.isValidToken(m.group(1))) {
-        JwtService.extractPayload(m.group(1)) match {
+      if (m.find() && jwtService.isValidToken(m.group(1))) {
+        jwtService.extractPayload(m.group(1)) match {
           case Some(payload) =>
             block(new AuthenticatedRequest(payload, request))
           case _ =>

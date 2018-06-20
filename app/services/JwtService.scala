@@ -6,10 +6,12 @@ import org.joda.time.DateTime
 import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 
-object JwtService {
+class JwtService {
   val JwtSecretKey = "secretKey"
   val JwtSecretAlgorithm = "HS256"
   val MaxAge: Int = 20
+
+  def apply: JwtService = new JwtService()
 
   def getFromRequest(request: Request[Any]): String = request.headers.get("Authorization").get.split(' ')(1)
 
@@ -29,7 +31,7 @@ object JwtService {
 
   def extractPayload(token: String): Option[PayloadData] =
     for {
-      jwt <- JwtService.decodePayload(token)
+      jwt <- decodePayload(token)
       payload <- Json.parse(jwt).asOpt[PayloadData]
     } yield payload
 
