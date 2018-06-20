@@ -21,7 +21,7 @@ class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit
   override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
     val jwtToken = request.headers.get("Authorization").getOrElse("")
 
-      val m = Pattern.compile("^Bearer (.*)?$").matcher(jwtToken)
+      val m = Pattern.compile("^Bearer ([a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+))?$").matcher(jwtToken)
       if (m.find() && JwtService.isValidToken(m.group(1))) {
         extractPayload(m.group(1)) match {
           case Some(payload) =>
