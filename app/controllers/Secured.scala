@@ -23,10 +23,7 @@ class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit
 
       val m = Pattern.compile("^Bearer (.*)?$").matcher(jwtToken)
       if (m.find() && JwtService.isValidToken(m.group(1))) {
-        (for {
-          jwt <- JwtService.decodePayload(m.group(1))
-          payload <- Json.parse(jwt).asOpt[PayloadData]
-        } yield payload) match {
+        extractPayload(m.group(1)) match {
           case Some(payload) =>
             block(new AuthenticatedRequest(payload, request))
           case _ =>
@@ -37,6 +34,12 @@ class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit
         Future(Unauthorized("Invalid credentials"))
       }
   }
+
+  def extractPayload(token: String): Option[PayloadData] =
+    for {
+      jwt <- JwtService.decodePayload(token)
+      payload <- Json.parse(jwt).asOpt[PayloadData]
+    } yield payload
 }
 
 case class SecuredControllerComponents @Inject()(
