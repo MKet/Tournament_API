@@ -6,7 +6,6 @@ import domain.PayloadData
 import javax.inject.Inject
 import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc._
 import services._
@@ -23,7 +22,7 @@ class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit
 
       val m = Pattern.compile("^Bearer ([a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+))?$").matcher(jwtToken)
       if (m.find() && JwtService.isValidToken(m.group(1))) {
-        extractPayload(m.group(1)) match {
+        JwtService.extractPayload(m.group(1)) match {
           case Some(payload) =>
             block(new AuthenticatedRequest(payload, request))
           case _ =>
@@ -34,12 +33,6 @@ class AuthenticatedActionBuilder @Inject()(parser: BodyParsers.Default)(implicit
         Future(Unauthorized("Invalid credentials"))
       }
   }
-
-  def extractPayload(token: String): Option[PayloadData] =
-    for {
-      jwt <- JwtService.decodePayload(token)
-      payload <- Json.parse(jwt).asOpt[PayloadData]
-    } yield payload
 }
 
 case class SecuredControllerComponents @Inject()(
